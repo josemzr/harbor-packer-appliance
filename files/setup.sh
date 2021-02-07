@@ -117,18 +117,10 @@ configureDataDisk() {
     mount -o defaults "${DISK}1" /mnt/harbor
     echo ""${DISK}1"     /mnt/harbor         ext3 defaults 0 2" >> /etc/fstab
 }
-<<<<<<< HEAD
 
 configureDHCP() {
     echo -e "\e[92mConfiguring network using DHCP..." > /dev/console
     cat > /etc/systemd/network/${NETWORK_CONFIG_FILE} << __CUSTOMIZE_PHOTON__
-=======
-    ##################################
-    ### No User Input, assume DHCP ###
-    ##################################
-    if [ -z "${HOSTNAME_PROPERTY}" ]; then
-        cat > /etc/systemd/network/${NETWORK_CONFIG_FILE} << __CUSTOMIZE_PHOTON__
->>>>>>> 21778b13923f66113f7f44b4efec5cbe30a95ed9
 [Match]
 Name=e*
 
