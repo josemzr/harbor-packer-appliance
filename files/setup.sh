@@ -127,7 +127,7 @@ configureDataDisk() {
     ##################################
     ### No User Input, assume DHCP ###
     ##################################
-    if [ -z "${IP_ADDRESS_PROPERTY}" ]; then
+    if [ -z "${HOSTNAME_PROPERTY}" ]; then
         cat > /etc/systemd/network/${NETWORK_CONFIG_FILE} << __CUSTOMIZE_PHOTON__
 [Match]
 Name=e*
