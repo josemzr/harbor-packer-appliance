@@ -10,7 +10,7 @@ The following Packer templates will build an OVA using a VMware vSphere ESXi hos
 
 ---
 
-**Requirements**
+## Requirements
 
 - A Linux or Mac environment (to be able to run the shell-local provisioner)
 - A VMware ESXi host to use as builder prepared for Packer using [this guide](https://nickcharlton.net/posts/using-packer-esxi-6.html) 
@@ -21,7 +21,7 @@ The following Packer templates will build an OVA using a VMware vSphere ESXi hos
 
 ---
 
-**Building**
+## Building
 
 To build this template, you will need to edit the harbor-appliance-builder.json file with your ESXi values:
 
@@ -55,7 +55,7 @@ packer build -var-file=harbor-appliance-builder.json -var-file=harbor-version.js
 ---
 
 
-**Deployment Parameters**
+## Deployment parameters
 
 The following network parameters can be configured when deploying the OVA in vSphere:
 
@@ -104,13 +104,13 @@ An additional flag can be configured for virtual machine deployment debugging:
 
 ---
 
-**HTTPS certificates**
+## HTTPS certificates
 
 HTTPS certificates can be configured during the deployment process in the Harbor HTTPS certificate and Harbor HTTPS certificate private key fields. Both the certificate and private key must be in PEM format. If no certificate is provided, it will be generated and self-signed during the first boot. Those certificates and the CA can be found under the /root/certs folder.
 
 ---
 
-**Acknowledgements**
+## Acknowledgements
 
 
 This project is possible because of the great work done by the Harbor project maintainers. Also, a big thank you to the  [packer-vsphere-debian-appliances](https://github.com/tsugliani/packer-vsphere-debian-appliances) project by Timo Sugliani and [photonos-nfs-appliance](https://github.com/lamw/photonos-nfs-appliance) project
