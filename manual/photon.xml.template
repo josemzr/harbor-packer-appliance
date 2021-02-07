@@ -64,7 +64,7 @@
         </Property>
         <Property ovf:key="guestinfo.harbor_https_proxy" ovf:type="string" ovf:userConfigurable="true">
             <Label>(Optional) Harbor HTTPS Proxy</Label>
-            <Description>(Optional) HTTPS Proxy for Harbor ((example: http://user:password@my.proxy.com:3128)</Description>
+            <Description>(Optional) HTTPS Proxy for Harbor (example: http://user:password@my.proxy.com:3128)</Description>
         </Property>
         <Property ovf:key="guestinfo.harbor_no_proxy" ovf:type="string" ovf:userConfigurable="true">
             <Label>(Optional) Harbor No Proxy</Label>
