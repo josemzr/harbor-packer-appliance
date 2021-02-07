@@ -36,6 +36,13 @@ To build this template, you will need to edit the harbor-appliance-builder.json 
 }
 ```
 
+The Harbor version can be modified in the harbor-version.json
+
+```
+{
+  "harbor_version": "v2.1.3",
+}
+```
 
 Then run the build-harbor-appliance.sh script or execute the following commands:
 
