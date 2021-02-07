@@ -4,24 +4,6 @@
 
 set -euo pipefail
 
-if [ -e /root/ran_customization ]; then
-    exit
-else
-    NETWORK_CONFIG_FILE=$(ls /etc/systemd/network | grep .network)
-
-    DEBUG_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.debug")
-    DEBUG=$(echo "${DEBUG_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
-    LOG_FILE=/var/log/bootstrap.log
-    if [ ${DEBUG} == "True" ]; then
-        LOG_FILE=/var/log/photon-customization-debug.log
-        set -x
-        exec 2> ${LOG_FILE}
-        echo
-        echo "### WARNING -- DEBUG LOG CONTAINS ALL EXECUTED COMMANDS WHICH INCLUDES CREDENTIALS -- WARNING ###"
-        echo "### WARNING --             PLEASE REMOVE CREDENTIALS BEFORE SHARING LOG            -- WARNING ###"
-        echo
-    fi
-
     HOSTNAME_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.hostname")
     IP_ADDRESS_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.ipaddress")
     NETMASK_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.netmask")
@@ -29,6 +11,15 @@ else
     DNS_SERVER_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.dns")
     DNS_DOMAIN_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.domain")
     ROOT_PASSWORD_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.root_password")
+
+    HOSTNAME=$(echo "${HOSTNAME_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    IP_ADDRESS=$(echo "${IP_ADDRESS_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    NETMASK=$(echo "${NETMASK_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    GATEWAY=$(echo "${GATEWAY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    DNS_SERVER=$(echo "${DNS_SERVER_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    DNS_DOMAIN=$(echo "${DNS_DOMAIN_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    ROOT_PASSWORD=$(echo "${ROOT_PASSWORD_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+
     HARBOR_HOSTNAME_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_hostname")
     HARBOR_HTTPS_CERTIFICATE_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_https_certificate")
     HARBOR_HTTPS_PRIVATE_KEY_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_https_private_key")
@@ -38,7 +29,6 @@ else
     HARBOR_HTTPS_PROXY_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_https_proxy")
     HARBOR_NO_PROXY_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_no_proxy")
 
-configureHarbor(){
     HARBOR_HOSTNAME=$(echo "${HARBOR_HOSTNAME_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
     HARBOR_HTTPS_CERTIFICATE=$(echo "${HARBOR_HTTPS_CERTIFICATE_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
     HARBOR_HTTPS_PRIVATE_KEY=$(echo "${HARBOR_HTTPS_PRIVATE_KEY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')  
@@ -48,6 +38,9 @@ configureHarbor(){
     HARBOR_HTTPS_PROXY=$(echo "${HARBOR_HTTPS_PROXY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
     HARBOR_NO_PROXY=$(echo "${HARBOR_NO_PROXY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
     
+
+configureHarbor(){
+
     echo -e "\e[92mConfiguring Harbor..." > /dev/console
     #Change default data volume to the newly created volume
 
@@ -124,11 +117,18 @@ configureDataDisk() {
     mount -o defaults "${DISK}1" /mnt/harbor
     echo ""${DISK}1"     /mnt/harbor         ext3 defaults 0 2" >> /etc/fstab
 }
+<<<<<<< HEAD
+
+configureDHCP() {
+    echo -e "\e[92mConfiguring network using DHCP..." > /dev/console
+    cat > /etc/systemd/network/${NETWORK_CONFIG_FILE} << __CUSTOMIZE_PHOTON__
+=======
     ##################################
     ### No User Input, assume DHCP ###
     ##################################
     if [ -z "${HOSTNAME_PROPERTY}" ]; then
         cat > /etc/systemd/network/${NETWORK_CONFIG_FILE} << __CUSTOMIZE_PHOTON__
+>>>>>>> 21778b13923f66113f7f44b4efec5cbe30a95ed9
 [Match]
 Name=e*
 
@@ -136,25 +136,12 @@ Name=e*
 DHCP=yes
 IPv6AcceptRA=no
 __CUSTOMIZE_PHOTON__
+}
 
-# Configure Harbor Data Disk
-configureDataDisk
-# Lastly configure Harbor
-configureHarbor
+configureStaticNetwork() {
 
-    #########################
-    ### Static IP Address ###
-    #########################
-    else
-        HOSTNAME=$(echo "${HOSTNAME_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
-        IP_ADDRESS=$(echo "${IP_ADDRESS_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
-        NETMASK=$(echo "${NETMASK_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
-        GATEWAY=$(echo "${GATEWAY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
-        DNS_SERVER=$(echo "${DNS_SERVER_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
-        DNS_DOMAIN=$(echo "${DNS_DOMAIN_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
-
-        echo -e "\e[92mConfiguring Static IP Address ..." > /dev/console
-        cat > /etc/systemd/network/${NETWORK_CONFIG_FILE} << __CUSTOMIZE_PHOTON__
+    echo -e "\e[92mConfiguring Static IP Address ..." > /dev/console
+    cat > /etc/systemd/network/${NETWORK_CONFIG_FILE} << __CUSTOMIZE_PHOTON__
 [Match]
 Name=e*
 
@@ -164,22 +151,67 @@ Gateway=${GATEWAY}
 DNS=${DNS_SERVER}
 Domain=${DNS_DOMAIN}
 __CUSTOMIZE_PHOTON__
+}
 
+configureHostname() {
     echo -e "\e[92mConfiguring hostname ..." > /dev/console
     [ -z "${HOSTNAME}" ] && HOSTNAME=harbor hostnamectl set-hostname harbor  || hostnamectl set-hostname ${HOSTNAME}
     echo "${IP_ADDRESS} ${HOSTNAME}" >> /etc/hosts
+}
+
+restartNetwork() {
     echo -e "\e[92mRestarting Network ..." > /dev/console
     systemctl restart systemd-networkd
+}
+
+configureRootPassword() {
+    echo -e "\e[92mConfiguring root password ..." > /dev/console
+    echo "root:${ROOT_PASSWORD}" | /usr/sbin/chpasswd
+}
+
+createCustomizationFlag() {
+    # Ensure that we don't run the customization again
+    touch /root/ran_customization
+}
+
+if [ -e /root/ran_customization ]; then
+    exit
+else
+    NETWORK_CONFIG_FILE=$(ls /etc/systemd/network | grep .network)
+
+    DEBUG_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.debug")
+    DEBUG=$(echo "${DEBUG_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    LOG_FILE=/var/log/bootstrap.log
+    if [ ${DEBUG} == "True" ]; then
+        LOG_FILE=/var/log/photon-customization-debug.log
+        set -x
+        exec 2> ${LOG_FILE}
+        echo
+        echo "### WARNING -- DEBUG LOG CONTAINS ALL EXECUTED COMMANDS WHICH INCLUDES CREDENTIALS -- WARNING ###"
+        echo "### WARNING --             PLEASE REMOVE CREDENTIALS BEFORE SHARING LOG            -- WARNING ###"
+        echo
     fi
 
-    echo -e "\e[92mConfiguring root password ..." > /dev/console
-    ROOT_PASSWORD=$(echo "${ROOT_PASSWORD_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
-    echo "root:${ROOT_PASSWORD}" | /usr/sbin/chpasswd
+# Leaving blank IP address, netmask or gateway will force DHCP
+if [ -z "${IP_ADDRESS}" ] || [ -z "${NETMASK}" ] || [ -z "${GATEWAY}" ]; then
 
-    # Configure Harbor Data Disk
+    configureDHCP
+    configureHostname
+    restartNetwork
+    configureRootPassword
     configureDataDisk
-    # Lastly configure Harbor
     configureHarbor
+    createCustomizationFlag
+
+    else
+
+    configureStaticNetwork
+    configureHostname
+    restartNetwork
+    configureRootPassword
+    configureDataDisk
+    configureHarbor
+    createCustomizationFlag
+
+    fi
 fi
-    # Ensure we don't run customization again
-    touch /root/ran_customization

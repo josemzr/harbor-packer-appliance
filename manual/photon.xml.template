@@ -6,19 +6,19 @@
       <Category>Networking</Category>
         <Property ovf:key="guestinfo.hostname" ovf:type="string" ovf:userConfigurable="true">
             <Label>Hostname</Label>
-            <Description>Hostname of system. Leave blank for DHCP.</Description>
+            <Description>Hostname of system. Defaults to harbor</Description>
         </Property>
         <Property ovf:key="guestinfo.ipaddress" ovf:type="string" ovf:userConfigurable="true">
             <Label>IP Address</Label>
-            <Description>IP Address of the system</Description>
+            <Description>IP Address of the system. Leave blank for DHCP</Description>
         </Property>
         <Property ovf:key="guestinfo.netmask" ovf:type="string" ovf:userConfigurable="true">
             <Label>Netmask Prefix</Label>
-            <Description>CIDR notation (e.g. 24 for 255.255.255.0, 28 for 255.255.255.240)</Description>
+            <Description>CIDR notation. Leave blank for DHCP (e.g. 24 for 255.255.255.0, 28 for 255.255.255.240)</Description>
         </Property>
         <Property ovf:key="guestinfo.gateway" ovf:type="string" ovf:userConfigurable="true">
             <Label>Gateway</Label>
-            <Description>Gateway of the system</Description>
+            <Description>Gateway of the system. Leave blank for DHCP</Description>
         </Property>
         <Property ovf:key="guestinfo.dns" ovf:type="string" ovf:userConfigurable="true">
             <Label>DNS</Label>
@@ -31,7 +31,7 @@
         <Category>Credentials</Category>
         <Property ovf:key="guestinfo.root_password" ovf:password="true" ovf:qualifiers="MinLen(4),MaxLen(100)" ovf:type="string" ovf:userConfigurable="true" ovf:value="">
             <Label>Root Password</Label>
-            <Description>Password to login in as root. Please use a secure password</Description>
+            <Description>Password to login in as root. Please use a secure password. This field is mandatory</Description>
         </Property>
         <Category>Harbor configuration</Category>
         <Property ovf:key="guestinfo.harbor_hostname" ovf:type="string" ovf:qualifiers="MinLen(4),MaxLen(100)"  ovf:userConfigurable="true">
@@ -60,15 +60,15 @@
         </Property>
         <Property ovf:key="guestinfo.harbor_http_proxy" ovf:type="string" ovf:userConfigurable="true">
             <Label>(Optional) Harbor HTTP Proxy</Label>
-            <Description>(Optional) HTTP Proxy for Harbor</Description>
+            <Description>(Optional) HTTP Proxy for Harbor (example: http://user:password@my.proxy.com:3128)</Description>
         </Property>
         <Property ovf:key="guestinfo.harbor_https_proxy" ovf:type="string" ovf:userConfigurable="true">
             <Label>(Optional) Harbor HTTPS Proxy</Label>
-            <Description>(Optional) HTTPS Proxy for Harbor</Description>
+            <Description>(Optional) HTTPS Proxy for Harbor ((example: http://user:password@my.proxy.com:3128)</Description>
         </Property>
         <Property ovf:key="guestinfo.harbor_no_proxy" ovf:type="string" ovf:userConfigurable="true">
             <Label>(Optional) Harbor No Proxy</Label>
-            <Description>(Optional) Locations to exclude from Harbor HTTP_PROXY and HTTPS_PROXY</Description>
+            <Description>(Optional) Locations to exclude from Harbor HTTP_PROXY and HTTPS_PROXY, comma separated (example: 127.0.0.1, localhost)</Description>
         </Property>
         <Category>zDebug</Category>
         <Property ovf:key="guestinfo.debug" ovf:type="boolean" ovf:userConfigurable="true" ovf:value="false">
