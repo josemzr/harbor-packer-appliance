@@ -1,0 +1,143 @@
+#!/bin/bash
+
+# Bootstrap script
+
+set -euo pipefail
+
+if [ -e /root/ran_customization ]; then
+    exit
+else
+    NETWORK_CONFIG_FILE=$(ls /etc/systemd/network | grep .network)
+
+    DEBUG_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.debug")
+    DEBUG=$(echo "${DEBUG_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    LOG_FILE=/var/log/bootstrap.log
+    if [ ${DEBUG} == "True" ]; then
+        LOG_FILE=/var/log/photon-customization-debug.log
+        set -x
+        exec 2> ${LOG_FILE}
+        echo
+        echo "### WARNING -- DEBUG LOG CONTAINS ALL EXECUTED COMMANDS WHICH INCLUDES CREDENTIALS -- WARNING ###"
+        echo "### WARNING --             PLEASE REMOVE CREDENTIALS BEFORE SHARING LOG            -- WARNING ###"
+        echo
+    fi
+
+    HOSTNAME_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.hostname")
+    IP_ADDRESS_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.ipaddress")
+    NETMASK_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.netmask")
+    GATEWAY_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.gateway")
+    DNS_SERVER_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.dns")
+    DNS_DOMAIN_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.domain")
+    ROOT_PASSWORD_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.root_password")
+    HARBOR_HOSTNAME_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_hostname")
+    HARBOR_HTTPS_CERTIFICATE_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_https_certificate")
+    HARBOR_HTTPS_PRIVATE_KEY_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_https_private_key")
+    HARBOR_ADMIN_PASSWORD_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_admin_password")
+    HARBOR_DB_PASSWORD_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_db_password")
+    HARBOR_HTTP_PROXY_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_http_proxy")
+    HARBOR_HTTPS_PROXY_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_https_proxy")
+    HARBOR_NO_PROXY_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_no_proxy")
+
+    ##################################
+    ### No User Input, assume DHCP ###
+    ##################################
+    if [ -z "${HOSTNAME_PROPERTY}" ] ; then
+        cat > /etc/systemd/network/${NETWORK_CONFIG_FILE} << __CUSTOMIZE_PHOTON__
+[Match]
+Name=e*
+
+[Network]
+DHCP=yes
+IPv6AcceptRA=no
+__CUSTOMIZE_PHOTON__
+    #########################
+    ### Static IP Address ###
+    #########################
+    else
+        HOSTNAME=$(echo "${HOSTNAME_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+        IP_ADDRESS=$(echo "${IP_ADDRESS_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+        NETMASK=$(echo "${NETMASK_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+        GATEWAY=$(echo "${GATEWAY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+        DNS_SERVER=$(echo "${DNS_SERVER_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+        DNS_DOMAIN=$(echo "${DNS_DOMAIN_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+
+        echo -e "\e[92mConfiguring Static IP Address ..." > /dev/console
+        cat > /etc/systemd/network/${NETWORK_CONFIG_FILE} << __CUSTOMIZE_PHOTON__
+[Match]
+Name=e*
+
+[Network]
+Address=${IP_ADDRESS}/${NETMASK}
+Gateway=${GATEWAY}
+DNS=${DNS_SERVER}
+Domain=${DNS_DOMAIN}
+__CUSTOMIZE_PHOTON__
+
+    echo -e "\e[92mConfiguring hostname ..." > /dev/console
+    hostnamectl set-hostname ${HOSTNAME}
+    echo "${IP_ADDRESS} ${HOSTNAME}" >> /etc/hosts
+    echo -e "\e[92mRestarting Network ..." > /dev/console
+    systemctl restart systemd-networkd
+    fi
+
+    echo -e "\e[92mConfiguring root password ..." > /dev/console
+    ROOT_PASSWORD=$(echo "${ROOT_PASSWORD_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    echo "root:${ROOT_PASSWORD}" | /usr/sbin/chpasswd
+
+    HARBOR_HOSTNAME=$(echo "${HARBOR_HOSTNAME_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    HARBOR_HTTPS_CERTIFICATE=$(echo "${HARBOR_HTTPS_CERTIFICATE_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    HARBOR_HTTPS_PRIVATE_KEY=$(echo "${HARBOR_HTTPS_PRIVATE_KEY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')  
+    HARBOR_ADMIN_PASSWORD=$(echo "${HARBOR_ADMIN_PASSWORD_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    HARBOR_DB_PASSWORD=$(echo "${HARBOR_DB_PASSWORD_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    HARBOR_HTTP_PROXY=$(echo "${HARBOR_HTTP_PROXY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    HARBOR_HTTPS_PROXY=$(echo "${HARBOR_HTTPS_PROXY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    HARBOR_NO_PROXY=$(echo "${HARBOR_NO_PROXY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    
+    echo -e "\e[92mConfiguring Harbor..." > /dev/console
+    #Change default data volume to the newly created volume
+
+    yq eval '.data_volume = "/mnt/harbor"' -i /root/harbor/harbor.yml.tmpl
+    
+    #If the Harbor Hostname variable is not set, configure it with the system hostname
+    [ -z "${HARBOR_HOSTNAME}" ] && hostname=${HOSTNAME} yq eval '.hostname = env(hostname)' -i /root/harbor/harbor.yml.tmpl || harbor_hostname=${HARBOR_HOSTNAME} yq eval '.hostname = env(harbor_hostname)' -i /root/harbor/harbor.yml.tmpl    
+    
+    #If HTTPS certificates aren't provided, generate self-signed certificates
+    if [ -z "$HARBOR_HTTPS_CERTIFICATE" ] || [ -z "$HARBOR_HTTPS_PRIVATE_KEY" ]
+    then
+      [ -z "${HARBOR_HOSTNAME}" ] && sed -i "s#TO_BE_REPLACED#${HOSTNAME}#g" /root/create-ca-and-certs.sh || sed -i "s#TO_BE_REPLACED#${HARBOR_HOSTNAME}#g" /root/create-ca-and-certs.sh
+      /root/create-ca-and-certs.sh
+      CERT_NAME=$(grep -ri "CERT_NAME=" /root/create-ca-and-certs.sh | cut -f2 -d"=")
+      CERT_PATH="/root/certs/cert/${CERT_NAME}.crt"
+      CERT_KEY_PATH="/root/certs/cert/${CERT_NAME}.key"
+      cert_path=${CERT_PATH} yq eval '.https.certificate = env(cert_path)' -i /root/harbor/harbor.yml.tmpl
+      cert_key_path=${CERT_KEY_PATH} yq eval '.https.private_key = env(cert_key_path)' -i /root/harbor/harbor.yml.tmpl
+    else
+      mkdir /root/certs
+      # Parsing the certificate from the OVF properties, as carriage returns are converted into spaces, so they need to be formatted
+      echo ${HARBOR_HTTPS_CERTIFICATE} | sed -e 's/BEGIN /BEGIN_/g' -e 's/PRIVATE /PRIVATE_/g' -e 's/END /END_/g' -e 's/ /\n/g' -e 's/BEGIN_/BEGIN /g' -e 's/PRIVATE_/PRIVATE /g' -e 's/END_/END /g' > /root/certs/${HARBOR_HOSTNAME}.crt
+      echo ${HARBOR_HTTPS_PRIVATE_KEY} | sed -e 's/BEGIN /BEGIN_/g' -e 's/PRIVATE /PRIVATE_/g' -e 's/END /END_/g' -e 's/ /\n/g' -e 's/BEGIN_/BEGIN /g' -e 's/PRIVATE_/PRIVATE /g' -e 's/END_/END /g' > /root/certs/${HARBOR_HOSTNAME}.key
+      CERT_PATH="/root/certs/${HARBOR_HOSTNAME}.crt"
+      CERT_KEY_PATH="/root/certs/${HARBOR_HOSTNAME}.key"
+      cert_path=${CERT_PATH} yq eval '.https.certificate = env(cert_path)' -i /root/harbor/harbor.yml.tmpl
+      cert_key_path=${CERT_KEY_PATH} yq eval '.https.private_key = env(cert_key_path)' -i /root/harbor/harbor.yml.tmpl      
+    fi
+
+    #Set Harbor initial password
+    [ -z "${HARBOR_ADMIN_PASSWORD}" ] && yq eval '.harbor_admin_password = "Harbor12345"' -i /root/harbor/harbor.yml.tmpl || harbor_admin_password=${HARBOR_ADMIN_PASSWORD} yq eval '.harbor_admin_password = env(harbor_admin_password)' -i /root/harbor/harbor.yml.tmpl
+
+    #Set Harbor DB password
+    [ -z "${HARBOR_DB_PASSWORD}" ] && yq eval '.database.password = "root123"' -i /root/harbor/harbor.yml.tmpl || harbor_db_password=${HARBOR_DB_PASSWORD} yq eval '.database.password = env(harbor_db_password)' -i /root/harbor/harbor.yml.tmpl
+
+    #Set Harbor proxy configuration
+    
+    [ -n "${HARBOR_HTTP_PROXY}" ] && harbor_http_proxy=${HARBOR_HTTP_PROXY} yq eval '.proxy.http_proxy = env(harbor_http_proxy)' -i /root/harbor/harbor.yml.tmpl
+    [ -n "${HARBOR_HTTPS_PROXY}" ] && harbor_https_proxy=${HARBOR_HTTPS_PROXY} yq eval '.proxy.https_proxy = env(harbor_https_proxy)' -i /root/harbor/harbor.yml.tmpl
+    [ -n "${HARBOR_NO_PROXY}" ] && harbor_no_proxy=${HARBOR_NO_PROXY} yq eval '.proxy.http_proxy = env(harbor_no_proxy)' -i /root/harbor/harbor.yml.tmpl
+
+    #Install Harbor
+    mv /root/harbor/harbor.yml.tmpl /root/harbor/harbor.yml
+    /root/harbor/install.sh --with-clair --with-trivy --with-chartmuseum
+
+    # Ensure we don't run customization again
+    touch /root/ran_customization
+fi
