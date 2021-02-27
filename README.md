@@ -14,7 +14,6 @@ The following Packer templates will build an OVA using a VMware vSphere ESXi hos
 
 - A Linux or Mac environment (to be able to run the shell-local provisioner)
 - A VMware ESXi host to use as builder prepared for Packer using [this guide](https://nickcharlton.net/posts/using-packer-esxi-6.html)
-     - Note: if you are using a ESXi 7.x as a builder, switch to the esxi-70 branch, as it is configured to use [VNC over websockets](https://www.virtuallyghetto.com/2020/10/quick-tip-vmware-iso-builder-for-packer-now-supported-with-esxi-7-0.html)
 - A DHCP-enabled network.
 - [Packer 1.6.6](https://www.packer.io/downloads)
 - [OVFTool](https://www.vmware.com/support/developer/ovf/) installed and configured in your PATH.
