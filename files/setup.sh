@@ -84,7 +84,7 @@ configureHarbor(){
 
     #Install Harbor
     mv /root/harbor/harbor.yml.tmpl /root/harbor/harbor.yml
-    /root/harbor/install.sh --with-clair --with-trivy --with-chartmuseum
+    /root/harbor/install.sh --with-trivy --with-chartmuseum
 
     #Enable Harbor as a Systemd Service
 
