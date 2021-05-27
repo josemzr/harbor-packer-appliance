@@ -61,9 +61,14 @@ emailAddress = optional
 organizationName = supplied
 organizationalUnitName = optional
 
+[ ${CA_NAME}_alt_names ]
+IP = IP_ADDRESS_SAN_TBR
+DNS = HARBOR_HOSTNAME_SAN_TBR
+
 [ ${CA_NAME}_extensions ]
 basicConstraints = CA:false
 subjectKeyIdentifier = hash
+subjectAltName = @${CA_NAME}_alt_names
 authorityKeyIdentifier = keyid:always
 keyUsage = digitalSignature,keyEncipherment
 extendedKeyUsage = serverAuth,clientAuth
