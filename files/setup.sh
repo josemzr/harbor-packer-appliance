@@ -96,7 +96,12 @@ configureHarbor(){
     #Install Harbor
     mv /root/harbor/harbor.yml.tmpl /root/harbor/harbor.yml
     /root/harbor/install.sh --with-trivy --with-chartmuseum
-
+    
+    #Copy Harbor CA to /mnt/harbor/ca_download
+    
+    cp /root/certs/ca/platform_ca.crt /mnt/harbor/ca_download/ca.crt
+    chmod 444 /mnt/harbor/ca_download/ca.crt
+    
     #Enable Harbor as a Systemd Service
 
     cat > /etc/systemd/system/harbor.service << __HARBOR_SYSTEMD__
