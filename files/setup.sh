@@ -61,9 +61,9 @@ configureHarbor(){
     then
       [ -z "${HARBOR_HOSTNAME}" ] && sed -i "s#TO_BE_REPLACED#${HOSTNAME}#g" /root/create-ca-and-certs.sh || sed -i "s#TO_BE_REPLACED#${HARBOR_HOSTNAME}#g" /root/create-ca-and-certs.sh
     # Adding the appliance IP address as a SAN in the self-signed cert
-      sed -i "s#IP_ADDRESS_SAN_TBR#${IP_ADDRESS}#g" create-ca-and-certs.sh
+      sed -i "s#IP_ADDRESS_SAN_TBR#${IP_ADDRESS}#g" /root/create-ca-and-certs.sh
     # If the Harbor Hostname is an IP address, don't add a DNS SANs in the cert, just leave the IP address of the appliance. If it is a DNS FQDN, add it to the SANs.
-      [ ${IP_SAN} = 0 ] && sed -i "s#HARBOR_HOSTNAME_SAN_TBR#${HARBOR_HOSTNAME}#g" create-ca-and-certs.sh || sed -i "/HARBOR_HOSTNAME_SAN_TBR/d" create-ca-and-certs.sh
+      [ ${IP_SAN} = 0 ] && sed -i "s#HARBOR_HOSTNAME_SAN_TBR#${HARBOR_HOSTNAME}#g" /root/create-ca-and-certs.sh || sed -i "/HARBOR_HOSTNAME_SAN_TBR/d" /root/create-ca-and-certs.sh
       /root/create-ca-and-certs.sh
       CERT_NAME=$(grep -ri "CERT_NAME=" /root/create-ca-and-certs.sh | cut -f2 -d"=")
       CERT_PATH="/root/certs/cert/${CERT_NAME}.crt"
