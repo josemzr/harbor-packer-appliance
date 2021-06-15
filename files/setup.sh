@@ -95,7 +95,7 @@ configureHarbor(){
 
     #Install Harbor
     mv /root/harbor/harbor.yml.tmpl /root/harbor/harbor.yml
-    /root/harbor/install.sh --with-trivy --with-chartmuseum
+    /root/harbor/install.sh --with-trivy --with-chartmuseum --with-notary
     
     #Copy Harbor CA to /mnt/harbor/ca_download
     
