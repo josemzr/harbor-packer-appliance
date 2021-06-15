@@ -22,6 +22,7 @@ tdnf install -y \
   unzip \
   awk \
   tar \
+  openssl-c_rehash \
 
 echo '> Installing Docker Compose...'
 curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
