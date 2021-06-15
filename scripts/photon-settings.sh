@@ -28,6 +28,14 @@ echo '> Installing Docker Compose...'
 curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 
+# Install Bitnami Charts Syncer
+echo '> Installing Charts Syncer...'
+wget -O /tmp/charts-syncer.tar.gz https://github.com/bitnami-labs/charts-syncer/releases/download/v0.9.0/charts-syncer_0.9.0_linux_x86_64.tar.gz
+tar -xzvf /tmp/charts-syncer.tar.gz -C /tmp
+rm -rf /tmp/charts-syncer.tar.gz
+chmod +x /tmp/charts-syncer
+mv /tmp/charts-syncer /usr/local/bin
+
 echo '> Installing yq...'
 
 wget https://github.com/mikefarah/yq/releases/download/v4.4.1/yq_linux_amd64 -O /usr/bin/yq
