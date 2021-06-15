@@ -70,6 +70,9 @@ configureHarbor(){
       CERT_KEY_PATH="/root/certs/cert/${CERT_NAME}.key"
       cert_path=${CERT_PATH} yq eval '.https.certificate = env(cert_path)' -i /root/harbor/harbor.yml.tmpl
       cert_key_path=${CERT_KEY_PATH} yq eval '.https.private_key = env(cert_key_path)' -i /root/harbor/harbor.yml.tmpl
+    # Add the self-signed CA to the system store
+      cp /root/certs/ca/platform_ca.crt /etc/ssl/certs
+      /bin/rehash_ca_certificates.sh
     else
       mkdir /root/certs
       # Parsing the certificate from the OVF properties, as carriage returns are converted into spaces, so they need to be formatted
