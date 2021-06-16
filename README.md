@@ -40,7 +40,7 @@ The Harbor version can be modified in the harbor-version.json
 
 ```
 {
-  "harbor_version": "v2.1.3"
+  "harbor_version": "v2.2.2"
 }
 ```
 
