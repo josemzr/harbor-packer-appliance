@@ -97,14 +97,6 @@ configureHarbor(){
     [ -n "${HARBOR_HTTPS_PROXY}" ] && harbor_https_proxy=${HARBOR_HTTPS_PROXY} yq eval '.proxy.https_proxy = env(harbor_https_proxy)' -i /root/harbor/harbor.yml.tmpl
     [ -n "${HARBOR_NO_PROXY}" ] && harbor_no_proxy=${HARBOR_NO_PROXY} yq eval '.proxy.http_proxy = env(harbor_no_proxy)' -i /root/harbor/harbor.yml.tmpl
 
-    # Adding additional TLS certificate to the system datastore in case it is needed (i.e to connect to an upstream HTTPS proxy for TLS introspection)
-    if [ -n "${ADD_TLS_CERTIFICATE}" ]; then
-        echo ${ADD_TLS_CERTIFICATE} | sed -e 's/BEGIN /BEGIN_/g' -e 's/PRIVATE /PRIVATE_/g' -e 's/END /END_/g' -e 's/ /\n/g' -e 's/BEGIN_/BEGIN /g' -e 's/PRIVATE_/PRIVATE /g' -e 's/END_/END /g' > /etc/ssl/certs/add_tls_cert.crt
-        /bin/rehash_ca_certificates.sh
-    else
-        echo "Additional TLS certificate not present. Skipping..."
-    fi
-
     #Install Harbor
     mv /root/harbor/harbor.yml.tmpl /root/harbor/harbor.yml
     /root/harbor/install.sh --with-trivy --with-chartmuseum --with-notary
@@ -194,6 +186,17 @@ createCustomizationFlag() {
     touch /root/ran_customization
 }
 
+addCertStore() {
+    # Adding additional TLS certificate to the system datastore in case it is needed (i.e to connect to an upstream HTTPS proxy for TLS introspection)
+    echo -e "\e[92mAdding additional TLS certificate ..." > /dev/console
+    if [ -n "${ADD_TLS_CERTIFICATE}" ]; then
+        echo ${ADD_TLS_CERTIFICATE} | sed -e 's/BEGIN /BEGIN_/g' -e 's/PRIVATE /PRIVATE_/g' -e 's/END /END_/g' -e 's/ /\n/g' -e 's/BEGIN_/BEGIN /g' -e 's/PRIVATE_/PRIVATE /g' -e 's/END_/END /g' > /etc/ssl/certs/add_tls_cert.crt
+        /bin/rehash_ca_certificates.sh
+    else
+        echo "Additional TLS certificate not present. Skipping..."
+    fi
+}
+
 if [ -e /root/ran_customization ]; then
     exit
 else
@@ -221,6 +224,7 @@ if [ -z "${IP_ADDRESS}" ] || [ -z "${NETMASK}" ] || [ -z "${GATEWAY}" ]; then
     configureRootPassword
     configureDataDisk
     configureHarbor
+    addCertStore
     createCustomizationFlag
 
     else
@@ -231,6 +235,7 @@ if [ -z "${IP_ADDRESS}" ] || [ -z "${NETMASK}" ] || [ -z "${GATEWAY}" ]; then
     configureRootPassword
     configureDataDisk
     configureHarbor
+    addCertStore
     createCustomizationFlag
 
     fi
