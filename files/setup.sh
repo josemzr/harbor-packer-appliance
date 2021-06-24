@@ -28,7 +28,7 @@ set -euo pipefail
     HARBOR_HTTP_PROXY_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_http_proxy")
     HARBOR_HTTPS_PROXY_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_https_proxy")
     HARBOR_NO_PROXY_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_no_proxy")
-    HARBOR_HTTPS_PROXY_CERTIFICATE_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_https_proxy_certificate")
+    ADD_TLS_CERTIFICATE_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.add_tls_certificate")
 
     HARBOR_HOSTNAME=$(echo "${HARBOR_HOSTNAME_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
     HARBOR_HTTPS_CERTIFICATE=$(echo "${HARBOR_HTTPS_CERTIFICATE_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
@@ -38,7 +38,7 @@ set -euo pipefail
     HARBOR_HTTP_PROXY=$(echo "${HARBOR_HTTP_PROXY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
     HARBOR_HTTPS_PROXY=$(echo "${HARBOR_HTTPS_PROXY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
     HARBOR_NO_PROXY=$(echo "${HARBOR_NO_PROXY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
-    HARBOR_HTTPS_PROXY_CERTIFICATE=$(echo "${HARBOR_HTTPS_PROXY_CERTIFICATE_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
+    ADD_TLS_CERTIFICATE=$(echo "${ADD_TLS_CERTIFICATE_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
 
 configureHarbor(){
 
@@ -97,12 +97,12 @@ configureHarbor(){
     [ -n "${HARBOR_HTTPS_PROXY}" ] && harbor_https_proxy=${HARBOR_HTTPS_PROXY} yq eval '.proxy.https_proxy = env(harbor_https_proxy)' -i /root/harbor/harbor.yml.tmpl
     [ -n "${HARBOR_NO_PROXY}" ] && harbor_no_proxy=${HARBOR_NO_PROXY} yq eval '.proxy.http_proxy = env(harbor_no_proxy)' -i /root/harbor/harbor.yml.tmpl
 
-    # Add the corporate TLS certificate to the system datastore in case it is needed to connect to an upstream HTTPS proxy for TLS introspection
-    if [ -n "${HARBOR_HTTPS_PROXY_CERTIFICATE}" ]; then
-        echo ${HARBOR_HTTPS_PROXY_CERTIFICATE} | sed -e 's/BEGIN /BEGIN_/g' -e 's/PRIVATE /PRIVATE_/g' -e 's/END /END_/g' -e 's/ /\n/g' -e 's/BEGIN_/BEGIN /g' -e 's/PRIVATE_/PRIVATE /g' -e 's/END_/END /g' > /etc/ssl/certs/https_proxy_cert.crt
+    # Adding additional TLS certificate to the system datastore in case it is needed (i.e to connect to an upstream HTTPS proxy for TLS introspection)
+    if [ -n "${ADD_TLS_CERTIFICATE}" ]; then
+        echo ${ADD_TLS_CERTIFICATE} | sed -e 's/BEGIN /BEGIN_/g' -e 's/PRIVATE /PRIVATE_/g' -e 's/END /END_/g' -e 's/ /\n/g' -e 's/BEGIN_/BEGIN /g' -e 's/PRIVATE_/PRIVATE /g' -e 's/END_/END /g' > /etc/ssl/certs/add_tls_cert.crt
         /bin/rehash_ca_certificates.sh
     else
-        echo "HTTPS Proxy TLS certificate not present. Skipping..."
+        echo "Additional TLS certificate not present. Skipping..."
     fi
 
     #Install Harbor
