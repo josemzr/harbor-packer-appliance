@@ -71,8 +71,8 @@
             <Description>(Optional) Locations to exclude from Harbor HTTP_PROXY and HTTPS_PROXY, comma separated (example: 127.0.0.1, localhost)</Description>
         </Property>
         <Property ovf:key="guestinfo.add_tls_certificate" ovf:qualifiers="MinLen(0),MaxLen(65535)" ovf:type="string" ovf:userConfigurable="true" ovf:value="">
-            <Label>(Optional) HTTPS Proxy Certificate</Label>
-            <Description>(Optional) Additional TLS certificate to add to the system trust datastore</Description>
+            <Label>(Optional) Additional TLS Certificate</Label>
+            <Description>(Optional) Additional TLS certificate to add to the system trust store</Description>
         </Property>
         <Category>zDebug</Category>
         <Property ovf:key="guestinfo.debug" ovf:type="boolean" ovf:userConfigurable="true" ovf:value="false">
