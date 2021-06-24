@@ -94,7 +94,7 @@ configureHarbor(){
     
     [ -n "${HARBOR_HTTP_PROXY}" ] && harbor_http_proxy=${HARBOR_HTTP_PROXY} yq eval '.proxy.http_proxy = env(harbor_http_proxy)' -i /root/harbor/harbor.yml.tmpl
     [ -n "${HARBOR_HTTPS_PROXY}" ] && harbor_https_proxy=${HARBOR_HTTPS_PROXY} yq eval '.proxy.https_proxy = env(harbor_https_proxy)' -i /root/harbor/harbor.yml.tmpl
-    [ -n "${HARBOR_NO_PROXY}" ] && harbor_no_proxy=${HARBOR_NO_PROXY} yq eval '.proxy.http_proxy = env(harbor_no_proxy)' -i /root/harbor/harbor.yml.tmpl
+    [ -n "${HARBOR_NO_PROXY}" ] && harbor_no_proxy=${HARBOR_NO_PROXY} yq eval '.proxy.no_proxy = env(harbor_no_proxy)' -i /root/harbor/harbor.yml.tmpl
 
     #Install Harbor
     mv /root/harbor/harbor.yml.tmpl /root/harbor/harbor.yml
