@@ -92,6 +92,7 @@ The following Harbor configuration parameters can be set during deployment:
 | Harbor HTTP Proxy (optional)         | HTTP Proxy for Harbor                                 |                            |
 | Harbor HTTPS Proxy (optional)        | HTTPS proxy for Harbor                                |                            |
 | Harbor No Proxy (optional)           | Locations to exclude from Harbor HTTP and HTTPS_PROXY |                            |
+| Additional TLS cert (optional)       | Additional TLS certificate to add to the OS           |                            |
 
 
 An additional flag can be configured for virtual machine deployment debugging:
