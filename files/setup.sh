@@ -28,6 +28,7 @@ set -euo pipefail
     HARBOR_HTTP_PROXY_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_http_proxy")
     HARBOR_HTTPS_PROXY_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_https_proxy")
     HARBOR_NO_PROXY_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.harbor_no_proxy")
+    ADD_TLS_CERTIFICATE_PROPERTY=$(vmtoolsd --cmd "info-get guestinfo.ovfEnv" | grep "guestinfo.add_tls_certificate")
 
     HARBOR_HOSTNAME=$(echo "${HARBOR_HOSTNAME_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
     HARBOR_HTTPS_CERTIFICATE=$(echo "${HARBOR_HTTPS_CERTIFICATE_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
@@ -37,7 +38,7 @@ set -euo pipefail
     HARBOR_HTTP_PROXY=$(echo "${HARBOR_HTTP_PROXY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
     HARBOR_HTTPS_PROXY=$(echo "${HARBOR_HTTPS_PROXY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
     HARBOR_NO_PROXY=$(echo "${HARBOR_NO_PROXY_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
-    
+    ADD_TLS_CERTIFICATE=$(echo "${ADD_TLS_CERTIFICATE_PROPERTY}" | awk -F 'oe:value="' '{print $2}' | awk -F '"' '{print $1}')
 
 configureHarbor(){
 
@@ -185,6 +186,17 @@ createCustomizationFlag() {
     touch /root/ran_customization
 }
 
+addCertStore() {
+    # Adding additional TLS certificate to the system datastore in case it is needed (i.e to connect to an upstream HTTPS proxy for TLS introspection)
+    echo -e "\e[92mAdding additional TLS certificate ..." > /dev/console
+    if [ -n "${ADD_TLS_CERTIFICATE}" ]; then
+        echo ${ADD_TLS_CERTIFICATE} | sed -e 's/BEGIN /BEGIN_/g' -e 's/PRIVATE /PRIVATE_/g' -e 's/END /END_/g' -e 's/ /\n/g' -e 's/BEGIN_/BEGIN /g' -e 's/PRIVATE_/PRIVATE /g' -e 's/END_/END /g' > /etc/ssl/certs/add_tls_cert.crt
+        /bin/rehash_ca_certificates.sh
+    else
+        echo "Additional TLS certificate not present. Skipping..."
+    fi
+}
+
 if [ -e /root/ran_customization ]; then
     exit
 else
@@ -212,6 +224,7 @@ if [ -z "${IP_ADDRESS}" ] || [ -z "${NETMASK}" ] || [ -z "${GATEWAY}" ]; then
     configureRootPassword
     configureDataDisk
     configureHarbor
+    addCertStore
     createCustomizationFlag
 
     else
@@ -222,6 +235,7 @@ if [ -z "${IP_ADDRESS}" ] || [ -z "${NETMASK}" ] || [ -z "${GATEWAY}" ]; then
     configureRootPassword
     configureDataDisk
     configureHarbor
+    addCertStore
     createCustomizationFlag
 
     fi
