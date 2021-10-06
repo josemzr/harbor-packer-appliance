@@ -36,6 +36,9 @@ rm -rf /tmp/charts-syncer.tar.gz
 chmod +x /tmp/charts-syncer
 mv /tmp/charts-syncer /usr/local/bin
 
+echo '> Installing Carvel tools...'
+curl -L https://carvel.dev/install.sh | bash
+
 echo '> Installing yq...'
 
 wget https://github.com/mikefarah/yq/releases/download/v4.4.1/yq_linux_amd64 -O /usr/bin/yq
