@@ -22,8 +22,6 @@ tdnf install -y \
   unzip \
   awk \
   tar \
-  ntp \
-  parted \
   openssl-c_rehash \
 
 echo '> Installing Docker Compose...'
