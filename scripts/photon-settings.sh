@@ -35,7 +35,7 @@ chmod +x /tmp/charts-syncer
 mv /tmp/charts-syncer /usr/local/bin
 
 echo '> Creating shasum symlink...'
-ln -s /bin/shasum /bin/sha256sum
+ln -s /bin/sha256sum /bin/shasum
 
 echo '> Installing Carvel tools...'
 curl -L https://carvel.dev/install.sh | bash
