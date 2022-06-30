@@ -12,7 +12,6 @@ tdnf -y update
 
 echo '> Installing Additional Packages...'
 tdnf install -y \
-  wget \
   parted \
   less \
   logrotate \
@@ -35,8 +34,11 @@ rm -rf /tmp/charts-syncer.tar.gz
 chmod +x /tmp/charts-syncer
 mv /tmp/charts-syncer /usr/local/bin
 
+echo '> Creating shasum symlink...'
+ln -s /bin/shasum /bin/sha256sum
+
 echo '> Installing Carvel tools...'
-wget -O- https://carvel.dev/install.sh | bash
+curl -L https://carvel.dev/install.sh | bash
 
 echo '> Installing yq...'
 
