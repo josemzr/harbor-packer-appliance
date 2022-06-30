@@ -12,6 +12,7 @@ tdnf -y update
 
 echo '> Installing Additional Packages...'
 tdnf install -y \
+  shasum \
   parted \
   less \
   logrotate \
