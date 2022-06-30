@@ -34,6 +34,9 @@ rm -rf /tmp/charts-syncer.tar.gz
 chmod +x /tmp/charts-syncer
 mv /tmp/charts-syncer /usr/local/bin
 
+echo '> Installing Carvel tools...'
+#Replace all instances of shasum with sha256sum since shasum isn't available in Photon 4.0
+curl -L https://carvel.dev/install.sh | sed -e '/Missing/d' | sed -e 's/shasum/sha256sum/g' | bash
 
 echo '> Installing yq...'
 
