@@ -13,7 +13,7 @@
 			"filesystem":"ext4"
 		}
 		],
-	"bootmode": "bios",
+    "bootmode": "bios",
     "packagelist_file": "packages_minimal.json",
     "postinstall": [
         "#!/bin/sh",
