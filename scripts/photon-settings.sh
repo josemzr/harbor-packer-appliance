@@ -12,6 +12,7 @@ tdnf -y update
 
 echo '> Installing Additional Packages...'
 tdnf install -y \
+  wget \
   parted \
   less \
   logrotate \
@@ -28,14 +29,14 @@ chmod +x /usr/local/bin/docker-compose
 
 # Install Bitnami Charts Syncer
 echo '> Installing Charts Syncer...'
-wget -O /tmp/charts-syncer.tar.gz https://github.com/bitnami-labs/charts-syncer/releases/download/v0.9.0/charts-syncer_0.9.0_linux_x86_64.tar.gz
+wget -O /tmp/charts-syncer.tar.gz https://github.com/bitnami-labs/charts-syncer/releases/download/v0.17.0/charts-syncer_0.17.0_linux_x86_64.tar.gz
 tar -xzvf /tmp/charts-syncer.tar.gz -C /tmp
 rm -rf /tmp/charts-syncer.tar.gz
 chmod +x /tmp/charts-syncer
 mv /tmp/charts-syncer /usr/local/bin
 
 echo '> Installing Carvel tools...'
-curl -L https://carvel.dev/install.sh | bash
+wget -O- https://carvel.dev/install.sh | bash
 
 echo '> Installing yq...'
 
