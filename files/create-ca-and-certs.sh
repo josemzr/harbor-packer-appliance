@@ -26,13 +26,13 @@ mkdir ./cert
 # NOTE: -nodes eliminates a passphrase; for infrastructure nodes
 # NOTE: omit this line if you will be using the same CA to sign more certificates
 eval "openssl req \
-      -newkey rsa:2048 -keyout ./ca/${CA_NAME}.key \
+      -newkey rsa:4096 -keyout ./ca/${CA_NAME}.key \
       -x509 -days 3650 -nodes -out ./ca/${CA_NAME}.crt \
       -subj \"$CA_CERT_SUBJ\""
 
 # Create a wildcard certificate signing request
 eval "openssl req \
-      -newkey rsa:1024 -keyout ./cert/${CERT_NAME}.key \
+      -newkey rsa:4096 -keyout ./cert/${CERT_NAME}.key \
       -nodes -out ./cert/${CERT_NAME}.csr \
       -subj \"$CERT_CSR_SUBJ\""
 
@@ -49,7 +49,7 @@ database = certindex
 private_key = ./ca/${CA_NAME}.key
 serial = serial
 default_days = 3650
-default_md = sha1
+default_md = sha512
 policy = ${CA_NAME}_policy
 x509_extensions = ${CA_NAME}_extensions
 
