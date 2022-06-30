@@ -5,7 +5,7 @@ This is a project to develop a Packer template to have [Harbor](https://github.c
 
 The OVA is based around Photon OS and can be built using [Packer](https://www.packer.io). It is based around the work by [William Lam](https://github.com/lamw/photonos-nfs-appliance) and [Timo Sugliani](https://github.com/tsugliani/packer-vsphere-debian-appliances). 
 
-The following Packer templates will build an OVA using a VMware vSphere ESXi host (although it is easily modifiable to build from VMware Workstation or Fusion) from a Photon 3.0 image. After the creation, the VM will be customizable using OVF parameters, so network, root password and Harbor configuration will be assignable during deployment. If no network is configured during deployment, it will use DHCP.
+The following Packer templates will build an OVA using a VMware vSphere ESXi host (although it is easily modifiable to build from VMware Workstation or Fusion) from a Photon 4.0 image. After the creation, the VM will be customizable using OVF parameters, so network, root password and Harbor configuration will be assignable during deployment. If no network is configured during deployment, it will use DHCP.
 
 
 ---
