@@ -67,7 +67,7 @@ configureHarbor(){
     then
       IP_ADDRESS=$(ifconfig eth0 | grep 'inet addr' | awk -F'[: ]+' '{ print $4 }')
       sed -i "s#IP_ADDRESS_SAN_TBR#${IP_ADDRESS}#g" /root/create-ca-and-certs.sh
-    else
+    fi
     #If interface has static, use the IP_ADDRESS property to add IP as SAN:
     sed -i "s#IP_ADDRESS_SAN_TBR#${IP_ADDRESS}#g" /root/create-ca-and-certs.sh
     # If the Harbor Hostname is an IP address, don't add a DNS SANs in the cert, just leave the IP address of the appliance. If it is a DNS FQDN, add it to the SANs.
