@@ -39,6 +39,7 @@
       "ssh_port": 22,
       "ssh_timeout": "20m",
       "format": "ovf",
+      "disk_type_id": "thin",
       "shutdown_command": "/sbin/shutdown -h now",
       "shutdown_timeout": "1000s",
       "vmx_data": {
