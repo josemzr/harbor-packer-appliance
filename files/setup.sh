@@ -222,8 +222,8 @@ else
         echo
     fi
 
-# Leaving blank IP address, netmask or gateway will force DHCP
-if [ -z "${IP_ADDRESS}" ] || [ -z "${NETMASK}" ] || [ -z "${GATEWAY}" ]; then
+# Leaving blank IP address or gateway will force DHCP
+if [ -z "${IP_ADDRESS}" ] || [ -z "${GATEWAY}" ]; then
 
     configureDHCP
     configureHostname
