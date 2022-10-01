@@ -10,7 +10,7 @@
     {
       "type": "vmware-iso",
       "vm_name": "{{ user `vm_name` }}",
-      "guest_os_type": "Other",
+      "guest_os_type": "vmwarePhoton64Guest",
       "version": "13",
       "disk_size": 10240,
       "disk_adapter_type": "pvscsi",
